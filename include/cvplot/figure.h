@@ -51,9 +51,41 @@ class Series {
   Series &color(Color color);
   Series &dynamicColor(bool dynamic_color);
   Series &legend(bool legend);
-  Series &add(const std::vector<std::pair<float, float>> &data);
-  Series &add(const std::vector<std::pair<float, Point2>> &data);
-  Series &add(const std::vector<std::pair<float, Point3>> &data);
+
+  template<class T>
+  Series & add(const T &data) {
+	  ensureDimsDepth(1, 1);
+	  for (const auto & d : data) {
+		  entries_.push_back(data_.size());
+		  data_.push_back(d.first);
+		  data_.push_back(d.second);
+	  }
+	  return *this;
+  }
+  template<>
+  Series & add<std::vector<std::pair<float, Point2>>>(const std::vector<std::pair<float, Point2>> &data) {
+	  ensureDimsDepth(1, 2);
+	  for (const auto &d : data) {
+		  entries_.push_back(data_.size());
+		  data_.push_back(d.first);
+		  data_.push_back(d.second.x);
+		  data_.push_back(d.second.y);
+	  }
+	  return *this;
+  }
+  template<>
+  Series & add<std::vector<std::pair<float, Point3>>>(const std::vector<std::pair<float, Point3>> &data) {
+	  ensureDimsDepth(1, 3);
+	  for (const auto &d : data) {
+		  entries_.push_back(data_.size());
+		  data_.push_back(d.first);
+		  data_.push_back(d.second.x);
+		  data_.push_back(d.second.y);
+		  data_.push_back(d.second.z);
+	  }
+	  return *this;
+  }
+
   Series &addValue(const std::vector<float> &values);
   Series &addValue(const std::vector<Point2> &values);
   Series &addValue(const std::vector<Point3> &values);
@@ -63,12 +95,56 @@ class Series {
   Series &addValue(float value);
   Series &addValue(float value_a, float value_b);
   Series &addValue(float value_a, float value_b, float value_c);
-  Series &set(const std::vector<std::pair<float, float>> &data);
-  Series &set(const std::vector<std::pair<float, Point2>> &data);
-  Series &set(const std::vector<std::pair<float, Point3>> &data);
-  Series &setValue(const std::vector<float> &values);
-  Series &setValue(const std::vector<Point2> &values);
-  Series &setValue(const std::vector<Point3> &values);
+
+  template <class T>
+  Series & set(const T & data) {
+	  clear();
+	  return add(data);
+  }
+  
+  template<class T>
+  Series & setValue(const T & values) {
+	  std::vector<std::pair<float, float>> data(values.size());
+	  auto i = 0;
+      for (const auto & val : values) {
+		  auto & d = data[i];
+		  d.first = i;
+		  d.second = val;
+		  ++i;
+      }
+	  return set(data);
+  }
+  template<>
+  Series & setValue<std::vector<float>>(const std::vector<float> &values) {
+	  std::vector<std::pair<float, float>> data(values.size());
+	  auto i = 0;
+	  for (auto &d : data) {
+		  d.first = i;
+		  d.second = values[i++];
+	  }
+	  return set(data);
+  }
+  template<>
+  Series & setValue<std::vector<Point2>>(const std::vector<Point2> &values) {
+	  std::vector<std::pair<float, Point2>> data(values.size());
+	  auto i = 0;
+	  for (auto &d : data) {
+		  d.first = i;
+		  d.second = values[i++];
+	  }
+	  return set(data);
+  }
+  template<>
+  Series & setValue<std::vector<Point3>>(const std::vector<Point3> &values) {
+	  std::vector<std::pair<float, Point3>> data(values.size());
+	  auto i = 0;
+	  for (auto &d : data) {
+		  d.first = i;
+		  d.second = values[i++];
+	  }
+	  return set(data);
+  }
+
   Series &set(float key, float value);
   Series &set(float key, float value_a, float value_b);
   Series &set(float key, float value_a, float value_b, float value_c);

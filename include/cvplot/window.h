@@ -101,6 +101,7 @@ class Window {
   void tick();
   void hide(bool hidden = true);
   void onmouse(int event, int x, int y, int flags);
+  const std::string & name() const { return name_; }
 
   Window &operator=(const Window &) = delete;
 

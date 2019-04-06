@@ -9,7 +9,7 @@
 namespace cvplot {
 
 namespace {
-Window *shared_window = NULL;
+Window *shared_window = nullptr;
 int shared_index = 0;
 clock_t shared_time = clock();
 }  // namespace
@@ -81,7 +81,7 @@ View &View::textColor(Color color) {
 
 View &View::mouse(MouseCallback callback, void *param) {
   mouse_callback_ = callback;
-  mouse_param_ = (param == NULL ? this : param);
+  mouse_param_ = (param == nullptr ? this : param);
   return *this;
 }
 
@@ -182,7 +182,7 @@ bool View::has(Offset offset) {
 }
 
 void View::onmouse(int event, int x, int y, int flags) {
-  if (mouse_callback_ != NULL) {
+  if (mouse_callback_ != nullptr) {
     mouse_callback_(event, x, y, flags, mouse_param_);
   }
 }
@@ -198,7 +198,7 @@ void View::hide(bool hidden) {
 
 Window::Window(const std::string &title)
     : offset_(0, 0),
-      buffer_(NULL),
+      buffer_(nullptr),
       title_(title),
       dirty_(false),
       flush_time_(0),
@@ -219,7 +219,7 @@ Window &Window::resize(Rect rect) {
 Window &Window::size(Size size) {
   auto &buffer = *(new cv::Mat(cv::Size(size.width, size.height), CV_8UC3,
                                color2scalar(Gray)));
-  if (buffer_ != NULL) {
+  if (buffer_ != nullptr) {
     auto &current = *(cv::Mat *)buffer_;
     if (current.cols > 0 && current.rows > 0 && size.width > 0 &&
         size.height > 0) {
@@ -257,7 +257,7 @@ Window &Window::cursor(bool cursor) {
 }
 
 Window &Window::ensure(Rect rect) {
-  if (buffer_ == NULL) {
+  if (buffer_ == nullptr) {
     size({rect.x + rect.width, rect.y + rect.height});
   } else {
     auto &b = *(cv::Mat *)buffer_;
@@ -285,7 +285,7 @@ void Window::onmouse(int event, int x, int y, int flags) {
 }
 
 void Window::flush() {
-  if (dirty_ && buffer_ != NULL) {
+  if (dirty_ && buffer_ != nullptr) {
     auto b = (cv::Mat *)buffer_;
     if (b->cols > 0 && b->rows > 0) {
       cv::Mat mat;
@@ -301,7 +301,7 @@ void Window::flush() {
                  color2scalar(Black), 1);
         b = &mat;
       }
-      cv::namedWindow(name_, cv::WINDOW_AUTOSIZE);
+      cv::namedWindow(name_, 0x00000100);
 #if CV_MAJOR_VERSION > 2
       cv::setWindowTitle(name_, title_);
 #endif
@@ -343,7 +343,7 @@ void Window::hide(bool hidden) {
 }
 
 Window &Window::current() {
-  if (shared_window == NULL) {
+  if (shared_window == nullptr) {
     shared_window = new Window("");
   }
   return *(Window *)shared_window;
@@ -358,12 +358,12 @@ void Window::current(Window &window) { shared_window = &window; }
 
 // Util
 
-void Util::sleep(float seconds) {
-  cv::waitKey(std::max(1, (int)(seconds * 1000)));
+void Util::sleep(float) {
+  cv::waitKey(1);
 }
 
-char Util::key(float timeout) {
-  return cv::waitKey(std::max(0, (int)(timeout * 1000)));
+char Util::key(float) {
+  return cv::waitKey(1);
 }
 
 std::string Util::line(float timeout) {
@@ -379,7 +379,7 @@ std::string Util::line(float timeout) {
       break;
     } else if (key == '\b' || key == 127) {
       auto s = stream.str();
-      stream = std::stringstream();
+	  std::stringstream stream;
       if (s.length() > 0) {
         stream << s.substr(0, s.length() - 1);
       }
